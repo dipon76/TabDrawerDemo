@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.dipon.tabviewdemo.ui.BasicActivity">
+
+
+
+
+
+
+
+
+    <android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/nvd_act_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="false"
+        android:layout_below="@+id/appBar">
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/vpg_main"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_below="@+id/appBar"
+            >
+            <android.support.design.widget.TabLayout
+                android:id="@+id/tbl_basic"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                
+                />
+        </android.support.v4.view.ViewPager>
+        <!-- The lower down an element is in the layout file, the higher it is on the Z axis. Therefore
+       we should place the content of the Activity (cont_main_content) above the content of the Navigation Drawer, so that
+        our Drawer on top (lst_nav_drawer)-->
+
+        <!-- The element below is what we can consider as our Navigation Drawer itself. You can decide
+       if the drawer pops out on the left or right via "layout_gravity" -->
+        <android.support.v7.widget.RecyclerView xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/lst_nav_drawer"
+            android:layout_width="240dp"
+
+            android:layout_height="match_parent"
+            android:layout_gravity="start|left"
+            android:background="@android:color/white"
+            app:layoutManager="android.support.v7.widget.LinearLayoutManager" />
+
+    </android.support.v4.widget.DrawerLayout>
+
+    <include
+        android:id="@+id/appBar"
+        layout="@layout/toolbar"
+        />
+
+</RelativeLayout>
