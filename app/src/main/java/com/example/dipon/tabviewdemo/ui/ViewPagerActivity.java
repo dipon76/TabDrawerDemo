@@ -17,15 +17,15 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.dipon.tabviewdemo.R;
 
 import java.util.ArrayList;
 
 import service.NavigationListAdapter;
+import service.ViewPagerItemFragment;
 
-public class ViewPagerActivity extends AppCompatActivity implements TabLayout.OnTabSelectedListener, NavigationListAdapter.OnItemClickListener,ViewPagerItemFragment.FragmentPagerItemCallback {
+public class ViewPagerActivity extends AppCompatActivity implements TabLayout.OnTabSelectedListener, NavigationListAdapter.OnItemClickListener, ViewPagerItemFragment.FragmentPagerItemCallback {
 
     private ArrayList<Drawable> icons;
     private ArrayList <String> labels;

@@ -1,4 +1,4 @@
-package com.example.dipon.tabviewdemo.ui;
+package service;
 
 import android.content.Context;
 import android.os.Bundle;
