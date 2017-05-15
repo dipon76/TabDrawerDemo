@@ -1,4 +1,4 @@
-package service;
+package com.example.dipon.tabviewdemo.main.adapters;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -7,7 +7,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 
 import com.example.dipon.tabviewdemo.R;
 

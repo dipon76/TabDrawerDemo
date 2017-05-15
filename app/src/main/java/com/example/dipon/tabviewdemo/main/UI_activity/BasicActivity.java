@@ -1,4 +1,4 @@
-package com.example.dipon.tabviewdemo.ui;
+package com.example.dipon.tabviewdemo.main.UI_activity;
 
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
@@ -18,7 +18,7 @@ import com.example.dipon.tabviewdemo.R;
 
 import java.util.ArrayList;
 
-import service.NavigationListAdapter;
+import com.example.dipon.tabviewdemo.main.adapters.NavigationListAdapter;
 
 public class BasicActivity extends AppCompatActivity implements TabLayout.OnTabSelectedListener, NavigationListAdapter.OnItemClickListener {
 
@@ -37,13 +37,38 @@ public class BasicActivity extends AppCompatActivity implements TabLayout.OnTabS
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_basic);
 
+        initializeView() ;
+
+        tabLayout.addOnTabSelectedListener(this);
+    }
+
+    private void initializeView() {
+        setUpToolbar () ;
+        setUpTabLayout();
+
+        icons = new ArrayList<>();
+        icons.add(ContextCompat.getDrawable(this,R.drawable.ic_dashboard_black_24dp));
+        icons.add(ContextCompat.getDrawable(this,R.drawable.ic_event_black_24dp));
+        icons.add(ContextCompat.getDrawable(this,R.drawable.ic_settings_black_24dp));
+
+        labels = new ArrayList<>();
+        labels.add("Dashboard");
+        labels.add("Calendar");
+        labels.add("Preference");
+
+        setUpNavDrawer(icons,labels);
+    }
+
+    private void setUpToolbar() {
         toolbar = (Toolbar) findViewById(R.id.appBar);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setElevation(0f);
+    }
 
+    private void setUpTabLayout() {
         tabLayout = (TabLayout) findViewById(R.id.tbl_basic);
         tabContent = (TextView) findViewById(R.id.lbl_basic_content);
 
@@ -56,23 +81,6 @@ public class BasicActivity extends AppCompatActivity implements TabLayout.OnTabS
         tabLayout.setTabTextColors(ContextCompat.getColor(this, android.R.color.white),
                 ContextCompat.getColor(this, R.color.colorAccent));
         tabLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary));
-
-
-        icons = new ArrayList<>();
-        icons.add(ContextCompat.getDrawable(this,R.drawable.ic_dashboard_black_24dp));
-        icons.add(ContextCompat.getDrawable(this,R.drawable.ic_event_black_24dp));
-        icons.add(ContextCompat.getDrawable(this,R.drawable.ic_settings_black_24dp));
-
-        labels = new ArrayList<>();
-        labels.add("Dashboard");
-        labels.add("Calendar");
-        labels.add("Preference");
-
-
-
-
-         setUpNavDrawer(icons,labels);
-        tabLayout.addOnTabSelectedListener(this);
     }
 
     private void setUpNavDrawer(ArrayList <Drawable> icons, ArrayList <String> labels) {

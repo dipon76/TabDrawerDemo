@@ -1,4 +1,4 @@
-package com.example.dipon.tabviewdemo.ui;
+package com.example.dipon.tabviewdemo.main.UI_activity;
 
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
@@ -17,13 +17,15 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.dipon.tabviewdemo.R;
 
 import java.util.ArrayList;
 
-import service.NavigationListAdapter;
-import service.ViewPagerItemFragment;
+import com.example.dipon.tabviewdemo.main.adapters.FragmentAdapter;
+import com.example.dipon.tabviewdemo.main.adapters.NavigationListAdapter;
+import com.example.dipon.tabviewdemo.main.adapters.ViewPagerItemFragment;
 
 public class ViewPagerActivity extends AppCompatActivity implements TabLayout.OnTabSelectedListener, NavigationListAdapter.OnItemClickListener, ViewPagerItemFragment.FragmentPagerItemCallback {
 
@@ -45,12 +47,11 @@ public class ViewPagerActivity extends AppCompatActivity implements TabLayout.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_pager);
 
-        toolbar = (Toolbar) findViewById(R.id.appBar);
-        setSupportActionBar(toolbar);
+        initialize();
+    }
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setElevation(0f);
+    private void initialize() {
+        setUpToolbar();
 
         tabLayout = (TabLayout) findViewById(R.id.tbl_basic);
         pager = (ViewPager) findViewById(R.id.vpg_main);
@@ -69,6 +70,15 @@ public class ViewPagerActivity extends AppCompatActivity implements TabLayout.On
         setUpPagerAndTabs();
     }
 
+    private void setUpToolbar() {
+        toolbar = (Toolbar) findViewById(R.id.appBar);
+        setSupportActionBar(toolbar);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setElevation(0f);
+    }
+
 
     private void setUpPagerAndTabs(){
 
@@ -76,7 +86,7 @@ public class ViewPagerActivity extends AppCompatActivity implements TabLayout.On
                 ContextCompat.getColor(this, R.color.colorAccent));
         tabLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary));
 
-        FragmentAdapter adapter = new FragmentAdapter(getSupportFragmentManager());
+        FragmentAdapter adapter = new FragmentAdapter(getSupportFragmentManager(), pageTitles);
         pager.setAdapter(adapter);
 
         tabLayout.addOnTabSelectedListener(this);
@@ -111,7 +121,6 @@ public class ViewPagerActivity extends AppCompatActivity implements TabLayout.On
 
     @Override
     public void onTabSelected(TabLayout.Tab tab) {
-       // tabContent.setText(tab.getText().toString());
         pager.setCurrentItem(tab.getPosition());
     }
 
@@ -122,6 +131,7 @@ public class ViewPagerActivity extends AppCompatActivity implements TabLayout.On
 
     @Override
     public void onTabReselected(TabLayout.Tab tab) {
+
 
     }
 
@@ -167,33 +177,13 @@ public class ViewPagerActivity extends AppCompatActivity implements TabLayout.On
 
     @Override
     public void onPagerItemClick(String message) {
-       // Toast.makeText(this, message + "!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, message + "!", Toast.LENGTH_SHORT).show();
     }
 
     /*For Pagers with a smaller/static number of pages, use FragmentPagerAdapter. It keeps visited
 caches fragments which have been opened in memory. If you require a large/dynamic number
 of pages, use FragmentStatePagerAdapter instead.
 */
-    public static class FragmentAdapter extends FragmentPagerAdapter {
 
-        public FragmentAdapter (FragmentManager manager){
-            super(manager);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return ViewPagerItemFragment.getInstance(pageTitles[position]);
-        }
-
-        @Override
-        public int getCount() {
-            return pageTitles.length;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position){
-            return pageTitles[position];
-        }
-    }
 
 }
