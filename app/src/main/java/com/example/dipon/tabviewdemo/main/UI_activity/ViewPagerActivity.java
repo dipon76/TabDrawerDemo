@@ -27,16 +27,14 @@ import com.example.dipon.tabviewdemo.main.adapters.FragmentAdapter;
 import com.example.dipon.tabviewdemo.main.adapters.NavigationListAdapter;
 import com.example.dipon.tabviewdemo.main.adapters.ViewPagerItemFragment;
 
-public class ViewPagerActivity extends AppCompatActivity implements TabLayout.OnTabSelectedListener, NavigationListAdapter.OnItemClickListener, ViewPagerItemFragment.FragmentPagerItemCallback {
+public class ViewPagerActivity extends AppCompatActivity implements TabLayout.OnTabSelectedListener, NavigationListAdapter.OnItemClickListener {
 
     private ArrayList<Drawable> icons;
     private ArrayList <String> labels;
     private DrawerLayout navDrawer;
     private RecyclerView navList;
-    private TextView title;
     private Toolbar toolbar;
     private ActionBarDrawerToggle toggle;
-
     private TabLayout tabLayout;
     private ViewPager pager;
 
@@ -48,6 +46,8 @@ public class ViewPagerActivity extends AppCompatActivity implements TabLayout.On
         setContentView(R.layout.activity_view_pager);
 
         initialize();
+        setUpNavDrawer(icons,labels);
+        setUpPagerAndTabs();
     }
 
     private void initialize() {
@@ -66,8 +66,7 @@ public class ViewPagerActivity extends AppCompatActivity implements TabLayout.On
         labels.add("Calendar");
         labels.add("Preference");
 
-        setUpNavDrawer(icons,labels);
-        setUpPagerAndTabs();
+
     }
 
     private void setUpToolbar() {
@@ -90,7 +89,7 @@ public class ViewPagerActivity extends AppCompatActivity implements TabLayout.On
         pager.setAdapter(adapter);
 
         tabLayout.addOnTabSelectedListener(this);
-        tabLayout.setupWithViewPager(pager);
+        tabLayout.setupWithViewPager(pager);  // automated creating tabs
 
     }
 
@@ -121,7 +120,7 @@ public class ViewPagerActivity extends AppCompatActivity implements TabLayout.On
 
     @Override
     public void onTabSelected(TabLayout.Tab tab) {
-        pager.setCurrentItem(tab.getPosition());
+        pager.setCurrentItem(tab.getPosition(), true);
     }
 
     @Override
@@ -174,16 +173,5 @@ public class ViewPagerActivity extends AppCompatActivity implements TabLayout.On
         }
 
     }
-
-    @Override
-    public void onPagerItemClick(String message) {
-        Toast.makeText(this, message + "!", Toast.LENGTH_SHORT).show();
-    }
-
-    /*For Pagers with a smaller/static number of pages, use FragmentPagerAdapter. It keeps visited
-caches fragments which have been opened in memory. If you require a large/dynamic number
-of pages, use FragmentStatePagerAdapter instead.
-*/
-
 
 }

@@ -8,6 +8,12 @@ import android.support.v4.app.FragmentPagerAdapter;
  * Created by Dipon on 5/14/2017.
  */
 
+  /**
+   * For Pagers with a smaller/static number of pages, use FragmentPagerAdapter. It keeps visited
+caches fragments which have been opened in memory. If you require a large/dynamic number
+of pages, use FragmentStatePagerAdapter instead.
+*/
+
 public class FragmentAdapter extends FragmentPagerAdapter {
 
     private String [] pageTitles;

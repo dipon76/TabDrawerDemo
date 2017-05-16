@@ -6,8 +6,12 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,20 +19,31 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.dipon.tabviewdemo.R;
+import com.example.dipon.tabviewdemo.main.data.CallInfo;
+import com.example.dipon.tabviewdemo.main.data.ContactInfo;
+
+import java.text.ParseException;
 
 /**
  * Created by Dipon on 4/5/2017.
  */
 
-public class ViewPagerItemFragment extends Fragment implements ContactAdapter.ClickCallback {
+public class ViewPagerItemFragment extends Fragment implements ContactAdapter.ClickCallback , LoaderManager.LoaderCallbacks <Cursor>, CallLogAdapter.ClickCallBack {
+
     private static final String PAGE_TITLE = "PAGE_TITLE";
-    private static final int VERTICAL_ITEM_SPACE = 20;
+    private static final int VERTICAL_ITEM_SPACE = 0;
     private String TAG = "Fragment Item" ;
     private String pageTitle;
-    private FragmentPagerItemCallback callback;
     private ContactAdapter contactAdapter;
+    private RecyclerView recyclerView;
+
+    private LoaderManager loaderManager;
+    private CursorLoader cursorLoader;
+    private CallLogAdapter callLogAdapter;
+    private RecyclerView recyclerViewLog;
 
     public ViewPagerItemFragment(){}
 
@@ -40,13 +55,50 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
         return fragment;
     }
 
-    public Cursor getAllContacts() throws RemoteException {
-        ContentResolver contentResolver = getContext().getContentResolver();
-        Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
-        return cursor;
+    @Override
+    public Loader onCreateLoader(int id, Bundle args) {
+        /**
+         * return new CursorLoader(
+         this,   // Parent activity context
+         CallLog.Calls.CONTENT_URI,        // Table to query
+         null,     // Projection to return
+         null,            // No selection clause
+         null,            // No selection arguments
+         null             // Default sort order
+         );
+         null selects all column
+         */
+        cursorLoader = new CursorLoader(getContext(), CallLog.Calls.CONTENT_URI,null,null,null,CallLog.Calls.DEFAULT_SORT_ORDER);
+        Log.d(TAG, "onCreateLoader: ");
+        return cursorLoader;
     }
 
+    @Override
+    public void onLoadFinished(Loader loader, Cursor cursor) {
+        if(callLogAdapter!=null && cursor!=null) {
+            Log.d(TAG, "onLoadFinished: ");
+            callLogAdapter.swapCursor(cursor); //swap the new cursor in.
+        } else
+            Log.v(TAG,"OnLoadFinished: callLogAdapter is null");
+    }
+
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+        if(callLogAdapter!=null )
+            callLogAdapter.swapCursor(null); //swap the null cursor in.
+        else
+            Log.v(TAG,"OnLoadFinished: callLogAdapter is null");
+    }
+
+
     private class ContactLoader extends AsyncTask<Void,Void,Cursor> {
+
+        private Cursor getAllContacts() throws RemoteException {
+            ContentResolver contentResolver = getContext().getContentResolver();
+            Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
+            return cursor;
+        }
         @Override
         protected void onPostExecute (Cursor aCursor) {
             super.onPostExecute (aCursor);
@@ -87,60 +139,70 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
         switch (pageTitle) {
             case "Contact" :
                 v = inflater.inflate(R.layout.contact_layout, container, false);
-                RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.contact_list);
-                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                contactAdapter = new ContactAdapter(getContext());
-                contactAdapter.setClickCallback(this);
-                recyclerView.addItemDecoration(new VerticalSpaceItemDecoration(VERTICAL_ITEM_SPACE));
-                recyclerView.setAdapter (contactAdapter);
-
-                ContactLoader contactLoader = new ContactLoader ();
-                contactLoader.execute();
-
+                initializeContactViewAndLoader(v);
+                break;
+            case "Call Log" :
+                v = inflater.inflate(R.layout.call_log_layout, container, false);
+                initializeLogViewAndLoader(v);
                 break;
             default:
                 v = inflater.inflate(R.layout.fragment_view_pager_item, container, false);
                 TextView content = ((TextView)v.findViewById(R.id.lbl_pager_item_content));
                 content.setText(pageTitle);
-                content.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        callback.onPagerItemClick(
-                                ((TextView)v).getText().toString()
-                        );
-                    }
-                });
-
-
         }
-
-
         return v;
+    }
+
+    private void initializeContactViewAndLoader(View v) {
+        recyclerView = (RecyclerView) v.findViewById(R.id.contact_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        contactAdapter = new ContactAdapter(getContext());
+        contactAdapter.setClickCallback(this);
+        recyclerView.addItemDecoration(new VerticalSpaceItemDecoration(VERTICAL_ITEM_SPACE));
+        recyclerView.setAdapter (contactAdapter);
+
+        ContactLoader contactLoader = new ContactLoader ();
+        contactLoader.execute();
+    }
+
+    private void initializeLogViewAndLoader(View v) {
+        recyclerViewLog = (RecyclerView) v.findViewById(R.id.callLog_list);
+        recyclerViewLog.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerViewLog.addItemDecoration(new VerticalSpaceItemDecoration(VERTICAL_ITEM_SPACE));
+        callLogAdapter = new CallLogAdapter(getContext());
+        callLogAdapter.setClickCallBack(this);
+        recyclerViewLog.setAdapter(callLogAdapter);
+
+        loaderManager = getLoaderManager();
+        loaderManager.initLoader(1,null,this);
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof FragmentPagerItemCallback) {
-            callback = (FragmentPagerItemCallback) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement FragmentPagerItemCallback");
-        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        callback = null;
+    }
+
+    @Override
+    public void onCallClick(int p) {
+        CallInfo callInfo = null;
+        callInfo = callLogAdapter.getCallInfoFromCursor(p);
+
+        if (callInfo.getCallerName() != null) {
+            Toast.makeText(getContext(),"Contact Info : "+callInfo.getCallDate().toString(),Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(getContext(),"Contact Name : "+callInfo.getCallDate().toString(),Toast.LENGTH_LONG).show();
+        }
+
     }
 
     @Override
     public void onItemClick(int p) {
-
-    }
-
-    public interface  FragmentPagerItemCallback {
-        void onPagerItemClick(String message);
+        ContactInfo contactInfo = contactAdapter.getContactInfoFromCursor(p);
+        Toast.makeText(getContext(),"Contact Name : "+contactInfo.getContactName(),Toast.LENGTH_SHORT).show();
     }
 }

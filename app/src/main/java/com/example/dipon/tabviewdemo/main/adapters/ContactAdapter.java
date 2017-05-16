@@ -31,13 +31,13 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
     private Cursor contactCursor = null;
 
 
-    public interface ClickCallback {
-         void onItemClick(int p);
-    }
-
     public ContactAdapter(Context context) {
         this.context = context;
         this.dataList = new ArrayList<>();
+    }
+
+    public interface ClickCallback {
+        void onItemClick(int p);
     }
 
     public void swapCursor(Cursor cursor) {
@@ -45,32 +45,12 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
         notifyDataSetChanged();
     }
 
-    public Context getContext() {
-        return context;
-    }
-
-    public void setContext(Context context) {
-        this.context = context;
-    }
-
-    public ClickCallback getClickCallback() {
-        return clickCallback;
-    }
-
     public void setClickCallback(ClickCallback clickCallback) {
         this.clickCallback = clickCallback;
     }
 
-    public List<ContactInfo> getDataList() {
-        return dataList;
-    }
 
-    public void setDataList(List<ContactInfo> dataList) {
-        this.dataList = dataList;
-    }
-
-    public ContactInfo getContactInfo (int adapterPosition)
-    {
+    public ContactInfo getContactInfoFromCursor(int adapterPosition) {
         ContactInfo contactInfo = new ContactInfo();
         ContentResolver contentResolver = context.getContentResolver();
         if (contactCursor == null) {
@@ -113,7 +93,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
     @Override
     public void onBindViewHolder(ContactHolder holder, int position) {
         ContactInfo contactInfo;
-        contactInfo = getContactInfo(position);
+        contactInfo = getContactInfoFromCursor(position);
         this.dataList.add(contactInfo);
         if(contactInfo == null) {
             Log.e(TAG, "onBindViewHolder: contactInfo null" );

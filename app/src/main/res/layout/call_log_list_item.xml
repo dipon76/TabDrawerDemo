@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/callLog_container"
+        android:layout_margin="6dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:id="@+id/log_container"
+            android:layout_margin="10dp"
+            android:elevation="5dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/call_log_profile_pic"
+                android:src="@drawable/ic_person_black_24dp"
+                android:background="@drawable/circle_background"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+
+            <TextView
+                android:layout_width="200dp"
+                android:layout_height="24dp"
+                android:text="Name"
+                android:layout_toRightOf="@+id/call_log_profile_pic"
+                android:layout_toEndOf="@+id/call_log_profile_pic"
+                android:paddingLeft="5dp"
+                android:paddingStart="5dp"
+                android:id="@+id/con_name_text" />
+
+            <TextView
+                android:id="@+id/call_date"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:text="TextView"
+                android:paddingLeft="5dp"
+                android:paddingStart="5dp"
+                android:layout_alignTop="@+id/icon_call_status"
+                android:layout_toRightOf="@+id/icon_call_status"
+                android:layout_alignRight="@+id/con_name_text"
+                android:layout_alignEnd="@+id/con_name_text" />
+
+            <TextView
+                android:id="@+id/call_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/call_log_profile_pic"
+                android:text="TextView"
+                android:paddingLeft="5dp"
+                android:paddingStart="5dp"
+                android:layout_alignRight="@+id/call_date"
+                android:layout_alignEnd="@+id/call_date"
+                android:layout_alignParentBottom="true"
+                android:layout_below="@+id/call_date" />
+
+            <ImageView
+                android:id="@+id/icon_call_status"
+                android:layout_width="wrap_content"
+                android:paddingLeft="5dp"
+                android:paddingStart="5dp"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_call_made_black_18dp"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/call_log_profile_pic"
+                android:layout_toEndOf="@+id/call_log_profile_pic" />
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+</RelativeLayout>

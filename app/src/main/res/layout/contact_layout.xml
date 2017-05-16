@@ -11,5 +11,5 @@
         android:layout_margin="10dp"
         android:layout_gravity="center"
         android:id="@+id/contact_list"
-        android:background="@color/bacground_shade"/>
+        />
 </FrameLayout>
