@@ -2,7 +2,9 @@ package com.example.dipon.tabviewdemo.main.adapters;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -12,6 +14,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -22,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.dipon.tabviewdemo.R;
+import com.example.dipon.tabviewdemo.main.UI_utility.ImageUtil;
 import com.example.dipon.tabviewdemo.main.data.CallInfo;
 import com.example.dipon.tabviewdemo.main.data.ContactInfo;
 
@@ -156,11 +160,11 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
     private void initializeContactViewAndLoader(View v) {
         recyclerView = (RecyclerView) v.findViewById(R.id.contact_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        contactAdapter = new ContactAdapter(getContext());
+        contactAdapter = new ContactAdapter(getContext(),this);
         contactAdapter.setClickCallback(this);
         recyclerView.addItemDecoration(new VerticalSpaceItemDecoration(VERTICAL_ITEM_SPACE));
+        recyclerView.setItemAnimator(new DefaultItemAnimator () );
         recyclerView.setAdapter (contactAdapter);
-
         ContactLoader contactLoader = new ContactLoader ();
         contactLoader.execute();
     }
@@ -169,9 +173,11 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
         recyclerViewLog = (RecyclerView) v.findViewById(R.id.callLog_list);
         recyclerViewLog.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerViewLog.addItemDecoration(new VerticalSpaceItemDecoration(VERTICAL_ITEM_SPACE));
-        callLogAdapter = new CallLogAdapter(getContext());
+        callLogAdapter = new CallLogAdapter(getContext(),this);
+
         callLogAdapter.setClickCallBack(this);
         recyclerViewLog.setAdapter(callLogAdapter);
+        recyclerViewLog.setItemAnimator(new DefaultItemAnimator());
 
         loaderManager = getLoaderManager();
         loaderManager.initLoader(1,null,this);
@@ -187,6 +193,13 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
         super.onDetach();
     }
 
+
+    /**
+     *
+     * @modified by Dipon
+     * on 17/5/17
+     */
+
     @Override
     public void onCallClick(int p) {
         CallInfo callInfo = null;
@@ -197,6 +210,10 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
         } else {
             Toast.makeText(getContext(),"Contact Name : "+callInfo.getCallDate().toString(),Toast.LENGTH_LONG).show();
         }
+
+        Intent intent = new Intent(Intent.ACTION_DIAL);
+        intent.setData(Uri.parse("tel:"+ callInfo.getCallerNumber()));
+        getContext().startActivity(intent);
 
     }
 

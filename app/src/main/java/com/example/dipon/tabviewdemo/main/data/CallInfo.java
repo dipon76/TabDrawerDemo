@@ -14,17 +14,19 @@ public class CallInfo implements Serializable{
     private String callDuration;
     private String callDate;
     private String callType;
+    private String callerImage;
 
 
     public CallInfo() {
     }
 
-    public CallInfo(int call_id, String callerName, String callerNumber, String callDuration, String callDate) {
+    public CallInfo(int call_id, String callerName, String callerNumber, String callDuration, String callDate, String callerImage) {
         this.call_id = call_id;
         this.callerName = callerName;
         this.callerNumber = callerNumber;
         this.callDuration = callDuration;
         this.callDate = callDate;
+        this.callerImage = callerImage;
     }
 
     public int getCall_id() {
@@ -73,5 +75,13 @@ public class CallInfo implements Serializable{
 
     public void setCallType(String callType) {
         this.callType = callType;
+    }
+
+    public String getCallerImage() {
+        return callerImage;
+    }
+
+    public void setCallerImage(String callerImage) {
+        this.callerImage = callerImage;
     }
 }

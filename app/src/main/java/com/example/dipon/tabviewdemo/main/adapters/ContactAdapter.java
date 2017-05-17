@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.provider.ContactsContract;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.dipon.tabviewdemo.R;
+import com.example.dipon.tabviewdemo.main.UI_utility.ImageUtil;
 import com.example.dipon.tabviewdemo.main.data.ContactInfo;
 
 import java.util.ArrayList;
@@ -29,10 +31,17 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
     private ClickCallback clickCallback;
     private List<ContactInfo> dataList = null;
     private Cursor contactCursor = null;
+    private Fragment fragment;
 
 
     public ContactAdapter(Context context) {
         this.context = context;
+        this.dataList = new ArrayList<>();
+    }
+
+    public ContactAdapter(Context context, Fragment fragment) {
+        this.context = context;
+        this.fragment = fragment;
         this.dataList = new ArrayList<>();
     }
 
@@ -62,8 +71,10 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
                 if (hasPhoneNumber > 0) {
                     String id = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts._ID));
                     String name = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                    String photoUri = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI));
                     contactInfo.setContactName(name);
                     contactInfo.setContactId(id);
+                    contactInfo.setContactImage(photoUri);
                     Cursor phoneCursor = contentResolver.query(
                             ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                             null,
@@ -103,6 +114,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
         if (contactInfo.getContactNumber() != null) {
             holder.contactName.setText(contactInfo.getContactName());
             holder.contactNumber.setText(contactInfo.getContactNumber());
+            ImageUtil.setImageButTextImageOnException(fragment,contactInfo.getContactImage(),holder.contactImage,contactInfo.getContactName());
 
         }
 

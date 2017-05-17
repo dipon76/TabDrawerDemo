@@ -1,12 +1,10 @@
-package com.example.dipon.tabviewdemo.main.UI_activity;
+package com.example.dipon.tabviewdemo.main.UI_utility;
 
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -16,8 +14,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.dipon.tabviewdemo.R;
 
@@ -25,7 +21,6 @@ import java.util.ArrayList;
 
 import com.example.dipon.tabviewdemo.main.adapters.FragmentAdapter;
 import com.example.dipon.tabviewdemo.main.adapters.NavigationListAdapter;
-import com.example.dipon.tabviewdemo.main.adapters.ViewPagerItemFragment;
 
 public class ViewPagerActivity extends AppCompatActivity implements TabLayout.OnTabSelectedListener, NavigationListAdapter.OnItemClickListener {
 
@@ -33,6 +28,7 @@ public class ViewPagerActivity extends AppCompatActivity implements TabLayout.On
     private ArrayList <String> labels;
     private DrawerLayout navDrawer;
     private RecyclerView navList;
+    private CollapsingToolbarLayout toolbar_container;
     private Toolbar toolbar;
     private ActionBarDrawerToggle toggle;
     private TabLayout tabLayout;
@@ -70,6 +66,7 @@ public class ViewPagerActivity extends AppCompatActivity implements TabLayout.On
     }
 
     private void setUpToolbar() {
+
         toolbar = (Toolbar) findViewById(R.id.appBar);
         setSupportActionBar(toolbar);
 
@@ -82,7 +79,7 @@ public class ViewPagerActivity extends AppCompatActivity implements TabLayout.On
     private void setUpPagerAndTabs(){
 
         tabLayout.setTabTextColors(ContextCompat.getColor(this, android.R.color.white),
-                ContextCompat.getColor(this, R.color.colorAccent));
+                ContextCompat.getColor(this, R.color.bacground_shade));
         tabLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary));
 
         FragmentAdapter adapter = new FragmentAdapter(getSupportFragmentManager(), pageTitles);
