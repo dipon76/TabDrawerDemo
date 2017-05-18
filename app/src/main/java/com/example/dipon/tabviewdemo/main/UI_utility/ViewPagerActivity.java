@@ -28,7 +28,6 @@ public class ViewPagerActivity extends AppCompatActivity implements TabLayout.On
     private ArrayList <String> labels;
     private DrawerLayout navDrawer;
     private RecyclerView navList;
-    private CollapsingToolbarLayout toolbar_container;
     private Toolbar toolbar;
     private ActionBarDrawerToggle toggle;
     private TabLayout tabLayout;
@@ -117,7 +116,7 @@ public class ViewPagerActivity extends AppCompatActivity implements TabLayout.On
 
     @Override
     public void onTabSelected(TabLayout.Tab tab) {
-        pager.setCurrentItem(tab.getPosition(), true);
+        pager.setCurrentItem(tab.getPosition());
     }
 
     @Override

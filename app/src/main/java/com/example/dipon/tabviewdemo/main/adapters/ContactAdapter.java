@@ -103,8 +103,8 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
 
     @Override
     public void onBindViewHolder(ContactHolder holder, int position) {
-        ContactInfo contactInfo;
-        contactInfo = getContactInfoFromCursor(position);
+        ContactInfo contactInfo = new ContactInfo();
+        contactInfo = contactInfo.getContactInfoFromCursor(position, context, contactCursor);
         this.dataList.add(contactInfo);
         if(contactInfo == null) {
             Log.e(TAG, "onBindViewHolder: contactInfo null" );

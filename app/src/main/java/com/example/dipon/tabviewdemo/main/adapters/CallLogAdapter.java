@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.example.dipon.tabviewdemo.R;
 import com.example.dipon.tabviewdemo.main.UI_utility.ImageUtil;
 import com.example.dipon.tabviewdemo.main.data.CallInfo;
+import com.example.dipon.tabviewdemo.main.data.ContactSummary;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -101,36 +102,7 @@ public class CallLogAdapter extends RecyclerView.Adapter<CallLogAdapter.LogHolde
         }
     }
 
-    private ContactSummary getContactSummary(String number) {
 
-        String name = null;
-        String photoUri = null;
-        // define the columns I want the query to return
-        String[] projection = new String[] {
-                ContactsContract.PhoneLookup.DISPLAY_NAME,
-                ContactsContract.PhoneLookup._ID,
-        ContactsContract.PhoneLookup.PHOTO_URI};
-
-        // encode the phone number and build the filter URI
-        Uri contactUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
-
-        // query time
-        Cursor cursor = context.getContentResolver().query(contactUri, projection, null, null, null);
-
-        if(cursor != null) {
-            if (cursor.moveToFirst()) {
-                name =      cursor.getString(cursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME));
-                photoUri =   cursor.getString(cursor.getColumnIndex(ContactsContract.PhoneLookup.PHOTO_URI));
-                Log.v(TAG, "Started uploadcontactphoto: Contact Found @ " + number);
-                Log.v(TAG, "Started uploadcontactphoto: Contact name  = " + name);
-            } else {
-                Log.v(TAG, "Contact Not Found @ " + number);
-            }
-            cursor.close();
-        }
-        ContactSummary contactSummary = new ContactSummary(name, photoUri);
-        return contactSummary;
-    }
 
     public CallInfo getCallInfoFromCursor(int position) {
         CallInfo callInfo = null;
@@ -150,7 +122,8 @@ public class CallLogAdapter extends RecyclerView.Adapter<CallLogAdapter.LogHolde
             callLogCursor.moveToPosition(position);
             int call_id = callLogCursor.getInt(callId);
             String phNumber = callLogCursor.getString(number);
-            ContactSummary contactSummary = getContactSummary(phNumber);
+            ContactSummary contactSummary = new ContactSummary();
+            contactSummary = contactSummary.getContactSummary(phNumber,context);
             String conName = contactSummary.getConName();
             String conImageUri = contactSummary.getConImageUri();
             String callType = callLogCursor.getString(type);
@@ -227,21 +200,5 @@ public class CallLogAdapter extends RecyclerView.Adapter<CallLogAdapter.LogHolde
         }
     }
 
-    private class ContactSummary {
-        private String conName;
-        private String conImageUri;
 
-        public ContactSummary(String conName, String conImageUri) {
-            this.conName = conName;
-            this.conImageUri = conImageUri;
-        }
-
-        public String getConName() {
-            return conName;
-        }
-
-        public String getConImageUri() {
-            return conImageUri;
-        }
-    }
 }

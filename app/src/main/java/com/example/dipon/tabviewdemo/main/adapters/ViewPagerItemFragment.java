@@ -21,15 +21,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.GridView;
 import android.widget.Toast;
 
 import com.example.dipon.tabviewdemo.R;
-import com.example.dipon.tabviewdemo.main.UI_utility.ImageUtil;
 import com.example.dipon.tabviewdemo.main.data.CallInfo;
 import com.example.dipon.tabviewdemo.main.data.ContactInfo;
-
-import java.text.ParseException;
 
 /**
  * Created by Dipon on 4/5/2017.
@@ -38,6 +35,11 @@ import java.text.ParseException;
 public class ViewPagerItemFragment extends Fragment implements ContactAdapter.ClickCallback , LoaderManager.LoaderCallbacks <Cursor>, CallLogAdapter.ClickCallBack {
 
     private static final String PAGE_TITLE = "PAGE_TITLE";
+
+    private static final int CALL_LOG_LOADER_ID = 1;
+    private static final int FAVOURITE_LOADER_ID = 2;
+    private static final int CONTACT_LOADER_ID = 3;
+
     private static final int VERTICAL_ITEM_SPACE = 0;
     private String TAG = "Fragment Item" ;
     private String pageTitle;
@@ -48,6 +50,10 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
     private CursorLoader cursorLoader;
     private CallLogAdapter callLogAdapter;
     private RecyclerView recyclerViewLog;
+
+    private GridView gridView;
+    private ImageAdapter imageAdapter;
+    private GridAdapter gridAdapter;
 
     public ViewPagerItemFragment(){}
 
@@ -72,27 +78,67 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
          );
          null selects all column
          */
-        cursorLoader = new CursorLoader(getContext(), CallLog.Calls.CONTENT_URI,null,null,null,CallLog.Calls.DEFAULT_SORT_ORDER);
-        Log.d(TAG, "onCreateLoader: ");
+        if (id == CALL_LOG_LOADER_ID) {
+            cursorLoader = new CursorLoader(getContext(), CallLog.Calls.CONTENT_URI,null,null,null,CallLog.Calls.DEFAULT_SORT_ORDER);
+            Log.d(TAG, "onCreateLoader: call_log_loader");
+        } else if (id == CONTACT_LOADER_ID) {
+            cursorLoader = new CursorLoader(getContext(),ContactsContract.Contacts.CONTENT_URI, null, null, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
+            Log.d(TAG, "onCreateLoader: Contact_loader_id");
+        } else if (id == FAVOURITE_LOADER_ID) {
+            String selection = ContactsContract.Contacts.STARRED + "='1'";
+            cursorLoader = new CursorLoader(getContext(), ContactsContract.Contacts.CONTENT_URI, null, selection, null, null);
+            Log.d(TAG, "onCreateLoader: contactloader");
+        }
+
         return cursorLoader;
     }
 
     @Override
     public void onLoadFinished(Loader loader, Cursor cursor) {
-        if(callLogAdapter!=null && cursor!=null) {
-            Log.d(TAG, "onLoadFinished: ");
-            callLogAdapter.swapCursor(cursor); //swap the new cursor in.
-        } else
-            Log.v(TAG,"OnLoadFinished: callLogAdapter is null");
+
+        if (loader.getId() == CALL_LOG_LOADER_ID) {
+            if(callLogAdapter!=null && cursor!=null) {
+                Log.d(TAG, "onLoadFinished: ");
+                callLogAdapter.swapCursor(cursor); //swap the new cursor in.
+            } else
+                Log.v(TAG,"OnLoadFinished: callLogAdapter is null");
+        } else if (loader.getId() == CONTACT_LOADER_ID) {
+            if(contactAdapter!=null && cursor!=null) {
+                Log.d(TAG, "onLoadFinished: ");
+                contactAdapter.swapCursor(cursor); //swap the new cursor in.
+            } else
+                Log.v(TAG,"OnLoadFinished: contactAdapter is null");
+        } else if (loader.getId() == FAVOURITE_LOADER_ID) {
+            if(gridAdapter!=null && cursor!=null) {
+                Log.d(TAG, "onLoadFinished: ");
+                gridAdapter.swapCursor(cursor); //swap the new cursor in.
+            } else
+                Log.v(TAG,"OnLoadFinished: gridAdapter is null");
+        }
     }
 
 
     @Override
     public void onLoaderReset(Loader loader) {
-        if(callLogAdapter!=null )
-            callLogAdapter.swapCursor(null); //swap the null cursor in.
-        else
-            Log.v(TAG,"OnLoadFinished: callLogAdapter is null");
+        if (loader.getId() == CALL_LOG_LOADER_ID) {
+            if(callLogAdapter!=null ) {
+                Log.d(TAG, "onLoadFinished: ");
+                callLogAdapter.swapCursor(null); //swap the null cursor in.
+            } else
+                Log.v(TAG,"OnLoadFinished: callLogAdapter is null");
+        }  else if (loader.getId() == CONTACT_LOADER_ID) {
+            if(contactAdapter != null ) {
+                Log.d(TAG, "onLoadFinished: ");
+                contactAdapter.swapCursor(null); //swap the null cursor in.
+            } else
+                Log.v(TAG,"OnLoadFinished: contactAdapter is null");
+        } else if (loader.getId() == FAVOURITE_LOADER_ID) {
+            if(gridAdapter!=null ) {
+                Log.d(TAG, "onLoadFinished: ");
+                gridAdapter.swapCursor(null); //swap the null cursor in.
+            } else
+                Log.v(TAG,"OnLoadFinished: gridAdapter is null");
+        }
     }
 
 
@@ -139,7 +185,7 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View v;
+        View v = null;
         switch (pageTitle) {
             case "Contact" :
                 v = inflater.inflate(R.layout.contact_layout, container, false);
@@ -149,10 +195,10 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
                 v = inflater.inflate(R.layout.call_log_layout, container, false);
                 initializeLogViewAndLoader(v);
                 break;
-            default:
-                v = inflater.inflate(R.layout.fragment_view_pager_item, container, false);
-                TextView content = ((TextView)v.findViewById(R.id.lbl_pager_item_content));
-                content.setText(pageTitle);
+            case "Favourite" :
+                v = inflater.inflate(R.layout.fav_layout, container, false);
+                initializeGridView(v);
+                break;
         }
         return v;
     }
@@ -165,8 +211,11 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
         recyclerView.addItemDecoration(new VerticalSpaceItemDecoration(VERTICAL_ITEM_SPACE));
         recyclerView.setItemAnimator(new DefaultItemAnimator () );
         recyclerView.setAdapter (contactAdapter);
-        ContactLoader contactLoader = new ContactLoader ();
-        contactLoader.execute();
+//        ContactLoader contactLoader = new ContactLoader ();
+//        contactLoader.execute();
+
+        loaderManager = getLoaderManager();
+        loaderManager.initLoader(CONTACT_LOADER_ID, null, this);
     }
 
     private void initializeLogViewAndLoader(View v) {
@@ -180,7 +229,16 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
         recyclerViewLog.setItemAnimator(new DefaultItemAnimator());
 
         loaderManager = getLoaderManager();
-        loaderManager.initLoader(1,null,this);
+        loaderManager.initLoader(CALL_LOG_LOADER_ID,null,this);
+    }
+
+    private void initializeGridView (View v) {
+        gridView = (GridView) v.findViewById(R.id.gridView);
+        gridAdapter = new GridAdapter(getContext(), R.layout.grid_item_list, this);
+        gridView.setAdapter(gridAdapter);
+
+        loaderManager = getLoaderManager();
+        loaderManager.initLoader(FAVOURITE_LOADER_ID, null, this);
     }
 
     @Override

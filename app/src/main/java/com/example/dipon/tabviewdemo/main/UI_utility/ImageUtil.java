@@ -77,6 +77,7 @@ public class ImageUtil {
         Glide.with(fragment)
                 .load(imagePath)
                 .asBitmap()
+                .override(160,120)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .signature(new StringSignature(String.valueOf(file.lastModified())))
                 .into(new BitmapImageViewTarget(imageViewWeakReference.get()) {

@@ -1,5 +1,10 @@
 package com.example.dipon.tabviewdemo.main.data;
 
+import android.content.ContentResolver;
+import android.content.Context;
+import android.database.Cursor;
+import android.provider.ContactsContract;
+
 import java.io.Serializable;
 
 /**
@@ -57,5 +62,39 @@ public class ContactInfo implements Serializable {
 
     public void setContactImage(String contactImage) {
         this.contactImage = contactImage;
+    }
+
+    public ContactInfo getContactInfoFromCursor(int adapterPosition , Context context, Cursor contactCursor) {
+        ContactInfo contactInfo = new ContactInfo();
+        ContentResolver contentResolver = context.getContentResolver();
+        if (contactCursor == null) {
+            return null;
+        } else {
+            if(contactCursor.getCount()>0) {
+                contactCursor.moveToPosition(adapterPosition);
+                int hasPhoneNumber = Integer.parseInt(contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)));
+                if (hasPhoneNumber > 0) {
+                    String id = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts._ID));
+                    String name = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                    String photoUri = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI));
+                    contactInfo.setContactName(name);
+                    contactInfo.setContactId(id);
+                    contactInfo.setContactImage(photoUri);
+                    Cursor phoneCursor = contentResolver.query(
+                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                            null,
+                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+                            new String[]{id},
+                            null);
+
+                    if (phoneCursor.moveToNext()) {
+                        String phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        contactInfo.setContactNumber(phoneNumber);
+                    }
+                    phoneCursor.close();
+                }
+            }
+        }
+        return contactInfo;
     }
 }
