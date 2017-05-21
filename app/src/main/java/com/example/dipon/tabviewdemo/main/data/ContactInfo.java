@@ -18,7 +18,7 @@ public class ContactInfo implements Serializable {
     private String contactImage;
     private boolean isSelected;
     private String contactId;
-
+    private String isStarred ;
 
     public ContactInfo() {
     }
@@ -31,6 +31,13 @@ public class ContactInfo implements Serializable {
         this.contactId = contactId;
     }
 
+    public String getIsStarred() {
+        return isStarred;
+    }
+
+    public void setIsStarred(String isStarred) {
+        this.isStarred = isStarred;
+    }
 
     public boolean isSelected() {
         return isSelected;
@@ -77,6 +84,8 @@ public class ContactInfo implements Serializable {
                     String id = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts._ID));
                     String name = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                     String photoUri = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI));
+                    String isStarred = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts.STARRED));
+                    contactInfo.setIsStarred(isStarred);
                     contactInfo.setContactName(name);
                     contactInfo.setContactId(id);
                     contactInfo.setContactImage(photoUri);

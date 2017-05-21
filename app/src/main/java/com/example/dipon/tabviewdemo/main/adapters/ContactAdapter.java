@@ -72,6 +72,8 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
                     String id = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts._ID));
                     String name = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                     String photoUri = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI));
+
+                    String isStarred = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts.STARRED));
                     contactInfo.setContactName(name);
                     contactInfo.setContactId(id);
                     contactInfo.setContactImage(photoUri);

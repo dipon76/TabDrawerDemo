@@ -95,6 +95,44 @@ public class ImageUtil {
 
     }
 
+
+    public static void setImageButDefaultImageOnException(Fragment fragment, final String imagePath, ImageView imageView, final String name, final int defaultId) {
+        if (imagePath == null || imagePath.trim().equals("")) {
+            if (name == null) {
+                imageView.setImageResource(defaultId);
+                return;
+            }
+
+            TextImage.ColorGenerator colorGenerator = TextImage.ColorGenerator.MATERIAL;
+            String textToSet = ImageUtil.TextImage.getSingleAlphaTextForImage(name);
+            imageView.setBackgroundColor(colorGenerator.getColor(name == null ? textToSet : name));
+            imageView.setImageResource(defaultId);
+            imageView.setImageAlpha(50);
+            return;
+        }
+        File file = new File(imagePath);
+        final WeakReference<ImageView> imageViewWeakReference = new WeakReference<ImageView>(imageView);
+        Glide.with(fragment)
+                .load(imagePath)
+                .asBitmap()
+                .override(350,120)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .signature(new StringSignature(String.valueOf(file.lastModified())))
+                .into(new BitmapImageViewTarget(imageViewWeakReference.get()) {
+                    @Override
+                    protected void setResource(Bitmap resource) {
+                        imageViewWeakReference.get().setImageBitmap(resource);
+                    }
+
+                    @Override
+                    public void onLoadFailed(Exception e, Drawable errorDrawable) {
+                        TextImage.setTextImage(name, imageViewWeakReference.get());
+                    }
+                });
+
+
+    }
+
     public static void setImage(Fragment fragment, final String imagePath, ImageView imageView) {
         if (imagePath != null) {
             File file = new File(imagePath);

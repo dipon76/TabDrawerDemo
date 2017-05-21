@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.provider.CallLog;
 import android.provider.ContactsContract;
+import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -52,8 +53,10 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
     private RecyclerView recyclerViewLog;
 
     private GridView gridView;
-    private ImageAdapter imageAdapter;
     private GridAdapter gridAdapter;
+
+    Cursor contactCursor;
+    Cursor callLogCursor;
 
     public ViewPagerItemFragment(){}
 
@@ -105,6 +108,7 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
         } else if (loader.getId() == CONTACT_LOADER_ID) {
             if(contactAdapter!=null && cursor!=null) {
                 Log.d(TAG, "onLoadFinished: ");
+                contactCursor = cursor;
                 contactAdapter.swapCursor(cursor); //swap the new cursor in.
             } else
                 Log.v(TAG,"OnLoadFinished: contactAdapter is null");
@@ -277,7 +281,13 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
 
     @Override
     public void onItemClick(int p) {
-        ContactInfo contactInfo = contactAdapter.getContactInfoFromCursor(p);
+        ContactInfo contactInfo = new ContactInfo();
+        contactInfo = contactInfo.getContactInfoFromCursor(p,getContext(),contactCursor);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("contactInfo",contactInfo);
+        BottomSheetDialogFragment bottomSheetDialogFragment = new CustomBottomSheetDialogFragment();
+        bottomSheetDialogFragment.setArguments(bundle);
+        bottomSheetDialogFragment.show(getActivity().getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
         Toast.makeText(getContext(),"Contact Name : "+contactInfo.getContactName(),Toast.LENGTH_SHORT).show();
     }
 }
