@@ -47,6 +47,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
 
     public interface ClickCallback {
         void onItemClick(int p);
+        void onItemLongClick (int p);
     }
 
     public void swapCursor(Cursor cursor) {
@@ -59,47 +60,11 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
     }
 
 
-    public ContactInfo getContactInfoFromCursor(int adapterPosition) {
-        ContactInfo contactInfo = new ContactInfo();
-        ContentResolver contentResolver = context.getContentResolver();
-        if (contactCursor == null) {
-            return null;
-        } else {
-            if(contactCursor.getCount()>0) {
-                contactCursor.moveToPosition(adapterPosition);
-                int hasPhoneNumber = Integer.parseInt(contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)));
-                if (hasPhoneNumber > 0) {
-                    String id = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts._ID));
-                    String name = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-                    String photoUri = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI));
-
-                    String isStarred = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts.STARRED));
-                    contactInfo.setContactName(name);
-                    contactInfo.setContactId(id);
-                    contactInfo.setContactImage(photoUri);
-                    Cursor phoneCursor = contentResolver.query(
-                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                            null,
-                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
-                            new String[]{id},
-                            null);
-
-                    if (phoneCursor.moveToNext()) {
-                        String phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        contactInfo.setContactNumber(phoneNumber);
-                    }
-                    phoneCursor.close();
-                }
-            }
-        }
-        return contactInfo;
-    }
 
     @Override
     public ContactHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.contact_item_list, null);
         ContactHolder contactViewHolder = new ContactHolder(view);
-        Log.e(TAG, "onCreateViewHolder: creating view holder");
         return contactViewHolder;
     }
 
@@ -130,7 +95,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
         return contactCursor.getCount();
     }
 
-    public class ContactHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public class ContactHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         TextView contactName;
         TextView contactNumber;
@@ -141,6 +106,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
             super(itemView);
             container = (View) itemView.findViewById(R.id.list_container);
             container.setOnClickListener(this);
+            container.setOnLongClickListener(this);
             contactName = (TextView) itemView.findViewById(R.id.contact_name_text);
             contactNumber = (TextView) itemView.findViewById(R.id.contact_number_text);
             contactImage = (ImageView) itemView.findViewById(R.id.contact_profile_pic);
@@ -149,6 +115,12 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
         @Override
         public void onClick(View v) {
                 clickCallback.onItemClick(getAdapterPosition());
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            clickCallback.onItemLongClick(getAdapterPosition());
+            return false;
         }
     }
 }
