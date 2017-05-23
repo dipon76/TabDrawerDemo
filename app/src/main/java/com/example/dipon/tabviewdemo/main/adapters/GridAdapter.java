@@ -32,7 +32,7 @@ import java.util.List;
  *         on 5/18/2017.
  */
 
-public class GridAdapter extends ArrayAdapter {
+public class GridAdapter extends ArrayAdapter implements View.OnClickListener{
     private static final String TAG = "Grid Adapter" ;
     private Context context;
     private int resourceId;
@@ -76,6 +76,9 @@ public class GridAdapter extends ArrayAdapter {
             holder = new ViewHolder();
             holder.imageName = (TextView) row.findViewById(R.id.contact_name_grid);
             holder.imageView = (ImageView) row.findViewById(R.id.contact_image_grid);
+            holder.gridContainer = row.findViewById(R.id.grid_container);
+            holder.gridContainer.setOnClickListener(this);
+
             row.setTag(holder);
         } else {
             holder = (ViewHolder) row.getTag();
@@ -88,10 +91,15 @@ public class GridAdapter extends ArrayAdapter {
         return row;
     }
 
+    @Override
+    public void onClick(View v) {
+
+    }
 
 
     public static class ViewHolder{
         TextView imageName;
         ImageView imageView;
+        View gridContainer;
     }
 }

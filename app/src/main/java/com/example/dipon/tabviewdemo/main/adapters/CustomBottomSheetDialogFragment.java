@@ -104,11 +104,13 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment i
                 favouriteIcon.setImageResource(R.drawable.ic_star_white_24dp);
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(ContactsContract.Contacts.STARRED, "1");
+                contactInfo.setIsStarred("1");
                 getContext().getContentResolver().update(ContactsContract.Contacts.CONTENT_URI, contentValues, ContactsContract.Contacts.LOOKUP_KEY + "= ?",  new String[]{contactInfo.getContactLookUpKey()+""});
             } else {
-                    favouriteIcon.setImageResource(R.drawable.ic_star_border_white_24dp);
-                    ContentValues contentValues = new ContentValues();
-                    contentValues.put(ContactsContract.Contacts.STARRED, "0");
+                favouriteIcon.setImageResource(R.drawable.ic_star_border_white_24dp);
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(ContactsContract.Contacts.STARRED, "0");
+                contactInfo.setIsStarred("0");
                 getContext().getContentResolver().update(ContactsContract.Contacts.CONTENT_URI, contentValues, ContactsContract.Contacts.LOOKUP_KEY + "= ?",  new String[]{contactInfo.getContactLookUpKey()+""});
             }
 

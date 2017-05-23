@@ -1,17 +1,21 @@
 package com.example.dipon.tabviewdemo.main.UI_utility;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -22,7 +26,7 @@ import java.util.ArrayList;
 import com.example.dipon.tabviewdemo.main.adapters.FragmentAdapter;
 import com.example.dipon.tabviewdemo.main.adapters.NavigationListAdapter;
 
-public class ViewPagerActivity extends AppCompatActivity implements TabLayout.OnTabSelectedListener, NavigationListAdapter.OnItemClickListener {
+public class ViewPagerActivity extends AppCompatActivity implements TabLayout.OnTabSelectedListener, NavigationView.OnNavigationItemSelectedListener  {
 
     private ArrayList<Drawable> icons;
     private ArrayList <String> labels;
@@ -38,7 +42,7 @@ public class ViewPagerActivity extends AppCompatActivity implements TabLayout.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_view_pager);
+        setContentView(R.layout.test);
 
         initialize();
         setUpNavDrawer(icons,labels);
@@ -51,22 +55,22 @@ public class ViewPagerActivity extends AppCompatActivity implements TabLayout.On
         tabLayout = (TabLayout) findViewById(R.id.tbl_basic);
         pager = (ViewPager) findViewById(R.id.vpg_main);
 
-        icons = new ArrayList<>();
-        icons.add(ContextCompat.getDrawable(this,R.drawable.ic_dashboard_black_24dp));
-        icons.add(ContextCompat.getDrawable(this,R.drawable.ic_event_black_24dp));
-        icons.add(ContextCompat.getDrawable(this,R.drawable.ic_settings_black_24dp));
-
-        labels = new ArrayList<>();
-        labels.add("Dashboard");
-        labels.add("Calendar");
-        labels.add("Preference");
+//        icons = new ArrayList<>();
+//        icons.add(ContextCompat.getDrawable(this,R.drawable.ic_dashboard_black_24dp));
+//        icons.add(ContextCompat.getDrawable(this,R.drawable.ic_event_black_24dp));
+//        icons.add(ContextCompat.getDrawable(this,R.drawable.ic_settings_black_24dp));
+//
+//        labels = new ArrayList<>();
+//        labels.add("Contact Dashboard");
+//        labels.add("SMS Dashboard");
+//        labels.add("Preference");
 
 
     }
 
     private void setUpToolbar() {
 
-        toolbar = (Toolbar) findViewById(R.id.appBar);
+        toolbar = (Toolbar) findViewById(R.id.app_toolbar1);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -90,12 +94,7 @@ public class ViewPagerActivity extends AppCompatActivity implements TabLayout.On
     }
 
     private void setUpNavDrawer(ArrayList <Drawable> icons, ArrayList <String> labels) {
-        navDrawer = (DrawerLayout) findViewById(R.id.nvd_act_main);
-        NavigationListAdapter adapter = new NavigationListAdapter(this, icons, labels);
-        adapter.setOnClickListener(this);
-
-        navList = (RecyclerView) findViewById(R.id.lst_nav_drawer);
-        navList.setAdapter(adapter);
+        navDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         toggle = new ActionBarDrawerToggle(this, navDrawer, toolbar, R.string.open, R.string.close) {
 
@@ -111,6 +110,10 @@ public class ViewPagerActivity extends AppCompatActivity implements TabLayout.On
         };
         // for animation properly
         navDrawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
     }
 
 
@@ -132,6 +135,57 @@ public class ViewPagerActivity extends AppCompatActivity implements TabLayout.On
 
 
     @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.sm, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.contact_dashboard) {
+            Intent intent = new Intent(this, ViewPagerActivity.class);
+            startActivity(intent);
+
+        } else if (id == R.id.sms_dashboard) {
+
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         // Sync the toggle state after onRestoreInstanceState has occurred.
@@ -144,30 +198,22 @@ public class ViewPagerActivity extends AppCompatActivity implements TabLayout.On
         toggle.onConfigurationChanged(newConfig);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Pass the event to ActionBarDrawerToggle, if it returns
-        // true, then it has handled the app icon touch event
-        if (toggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
-    @Override
-    public void onNavigationItemClick(int position) {
-        switch (position) {
-            case 0:
-               // tabContent.setText("Dashboard Activity");
-                break;
-            case 1:
-                //tabContent.setText("Calendar Activity");
-                break;
-            case 2:
-                //tabContent.setText("Preference Activity");
-                break;
-        }
-
-    }
+//    @Override
+//    public void onNavigationItemClick(int position) {
+//        switch (position) {
+//            case 0:
+//                Intent intent = new Intent(this, ViewPagerActivity.class);
+//                startActivity(intent);
+//                break;
+//            case 1:
+//                //tabContent.setText("Calendar Activity");
+//                break;
+//            case 2:
+//                //tabContent.setText("Preference Activity");
+//                break;
+//        }
+//
+//    }
 
 }

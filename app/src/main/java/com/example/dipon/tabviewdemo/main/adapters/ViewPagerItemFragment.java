@@ -54,6 +54,7 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
 
     private GridView gridView;
     private GridAdapter gridAdapter;
+    private View gridContainer;
 
     private Cursor contactCursor;
     Cursor callLogCursor;
@@ -265,18 +266,13 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
     @Override
     public void onCallClick(int p) {
         CallInfo callInfo = callLogAdapter.getCallInfoFromCursor(p);
-
-        if (callInfo.getCallerName() != null) {
-            Toast.makeText(getContext(),"Contact Info : "+callInfo.getCallDate().toString(),Toast.LENGTH_LONG).show();
-        } else {
-            Toast.makeText(getContext(),"Contact Name : "+callInfo.getCallDate().toString(),Toast.LENGTH_LONG).show();
+        Log.e(TAG, "onCallClick: call click");
+        if (callInfo != null && callInfo.getCallerNumber() != null) {
+            Intent intent = new Intent(Intent.ACTION_CALL);
+            intent.setData(Uri.parse("tel:"+ callInfo.getCallerNumber()));
+            intent.putExtra("finishActivityOnSaveCompleted", true);
+            startActivity(intent);
         }
-
-        Intent intent = new Intent(Intent.ACTION_CALL);
-        intent.setData(Uri.parse("tel:"+ callInfo.getCallerNumber()));
-        intent.putExtra("finishActivityOnSaveCompleted", true);
-        startActivity(intent);
-
     }
 
     @Override
@@ -294,10 +290,12 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
     public void onItemLongClick(int p) {
         ContactInfo contactInfo = new ContactInfo();
         contactInfo = contactInfo.getContactInfoFromCursor(p,getContext(),contactCursor);
+        if (contactInfo != null && contactInfo.getContactNumber() != null) {
+            Intent intent = new Intent(Intent.ACTION_DIAL);
+            intent.setData(Uri.parse("tel:"+ contactInfo.getContactNumber()));
+            intent.putExtra("finishActivityOnSaveCompleted", true);
+            startActivity(intent);
+        }
 
-        Intent intent = new Intent(Intent.ACTION_DIAL);
-        intent.setData(Uri.parse("tel:"+ contactInfo.getContactNumber()));
-        intent.putExtra("finishActivityOnSaveCompleted", true);
-        startActivity(intent);
     }
 }
