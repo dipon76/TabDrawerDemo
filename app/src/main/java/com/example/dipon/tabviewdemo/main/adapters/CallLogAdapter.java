@@ -2,9 +2,7 @@ package com.example.dipon.tabviewdemo.main.adapters;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 import android.provider.CallLog;
-import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -19,9 +17,9 @@ import com.example.dipon.tabviewdemo.main.UI_utility.ImageUtil;
 import com.example.dipon.tabviewdemo.main.data.CallInfo;
 import com.example.dipon.tabviewdemo.main.data.ContactSummary;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 
 /**
  * Created by Dipon on 5/16/2017.
@@ -33,6 +31,7 @@ public class CallLogAdapter extends RecyclerView.Adapter<CallLogAdapter.LogHolde
     private Cursor callLogCursor;
     private ClickCallBack clickCallBack;
     private Fragment fragment;
+    private HashMap<String , ContactSummary> logNameMap = new HashMap<>();
 
     public CallLogAdapter(Context context) {
         this.context = context;
@@ -54,7 +53,7 @@ public class CallLogAdapter extends RecyclerView.Adapter<CallLogAdapter.LogHolde
     public String timeFormatter (String format_24) {
         try {
             SimpleDateFormat _24HourSDF = new SimpleDateFormat("HH:mm:ss");
-            SimpleDateFormat _12HourSDF = new SimpleDateFormat("hh:mm:ss a");
+            SimpleDateFormat _12HourSDF = new SimpleDateFormat("hh:mm a");
             Date _24HourDt = _24HourSDF.parse(format_24);
             return _12HourSDF.format(_24HourDt).toString();
         } catch (Exception e) {
@@ -123,9 +122,19 @@ public class CallLogAdapter extends RecyclerView.Adapter<CallLogAdapter.LogHolde
             int call_id = callLogCursor.getInt(callId);
             String phNumber = callLogCursor.getString(number);
             ContactSummary contactSummary = new ContactSummary();
-            contactSummary = contactSummary.getContactSummary(phNumber,context);
-            String conName = contactSummary.getConName();
-            String conImageUri = contactSummary.getConImageUri();
+            String conName = "";
+            String conImageUri = "";
+            if (!logNameMap.containsKey(phNumber)) {
+                contactSummary = contactSummary.getContactSummary(phNumber,context);
+                logNameMap.put(phNumber,contactSummary);
+                conName = contactSummary.getConName();
+                conImageUri = contactSummary.getConImageUri();
+            } else {
+                contactSummary = logNameMap.get(phNumber);
+                conName = contactSummary.getConName();
+                conImageUri = contactSummary.getConImageUri();
+            }
+
             String callType = callLogCursor.getString(type);
             String callDate = callLogCursor.getString(date);
             Date callDateString = new Date(Long.valueOf(callDate));

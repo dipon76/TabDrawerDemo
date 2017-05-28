@@ -15,31 +15,25 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.example.dipon.tabviewdemo.R;
 import com.example.dipon.tabviewdemo.main.UI_utility.ImageUtil;
 import com.example.dipon.tabviewdemo.main.data.ContactInfo;
-import com.example.dipon.tabviewdemo.main.data.ContactSummary;
-import com.example.dipon.tabviewdemo.main.data.ImageItem;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Dipon
  *         on 5/18/2017.
  */
 
-public class GridAdapter extends ArrayAdapter implements View.OnClickListener{
+public class GridAdapter extends ArrayAdapter {
     private static final String TAG = "Grid Adapter" ;
     private Context context;
     private int resourceId;
     private ArrayList data = new ArrayList();
     private Fragment fragment;
     private Cursor cursor;
-
+    private GridClickCallback gridClickCallback;
 
     public GridAdapter(@NonNull Context context, @LayoutRes int resource , Fragment fragment) {
         super(context, resource);
@@ -48,12 +42,25 @@ public class GridAdapter extends ArrayAdapter implements View.OnClickListener{
         this.fragment = fragment;
     }
 
+    public interface GridClickCallback {
+        void gridItemClick(ContactInfo contactInfo);
+        void detailGridItemClick(ContactInfo contactInfo);
+    }
+
     public void swapCursor (Cursor cursor) {
         if (cursor == null) {
             Log.d(TAG, "swapCursor: null parameter");
         }
         this.cursor = cursor;
         notifyDataSetChanged();
+    }
+
+    public GridClickCallback getGridClickCallback() {
+        return gridClickCallback;
+    }
+
+    public void setGridClickCallback(GridClickCallback gridClickCallback) {
+        this.gridClickCallback = gridClickCallback;
     }
 
     @Override
@@ -66,7 +73,7 @@ public class GridAdapter extends ArrayAdapter implements View.OnClickListener{
 
     @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+    public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View row = convertView;
         ViewHolder holder = null;
 
@@ -77,9 +84,17 @@ public class GridAdapter extends ArrayAdapter implements View.OnClickListener{
             holder.imageName = (TextView) row.findViewById(R.id.contact_name_grid);
             holder.imageView = (ImageView) row.findViewById(R.id.contact_image_grid);
             holder.gridContainer = row.findViewById(R.id.grid_container);
-            holder.gridContainer.setOnClickListener(this);
-
+            holder.gridContainer.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ContactInfo contactInfo = new ContactInfo();
+                    contactInfo = contactInfo.getContactInfoFromCursor(position,context,cursor) ;
+                    gridClickCallback.gridItemClick(contactInfo);
+                }
+            });
             row.setTag(holder);
+            row.setTag(R.id.grid_container, position);
+
         } else {
             holder = (ViewHolder) row.getTag();
         }
@@ -91,10 +106,22 @@ public class GridAdapter extends ArrayAdapter implements View.OnClickListener{
         return row;
     }
 
-    @Override
-    public void onClick(View v) {
-
-    }
+//    @Override
+//    public void onClick(View v) {
+//        if(v.getId() == R.id.grid_container) {
+//            ViewHolder holder = (ViewHolder) v.getTag();
+//            int pos = (int) v.getTag(R.id.grid_container);
+//            ContactInfo contactInfo = new ContactInfo();
+//            contactInfo = contactInfo.getContactInfoFromCursor(pos,context,cursor) ;
+//            gridClickCallback.gridItemClick(contactInfo);
+//        } else {
+//            ViewHolder holder = (ViewHolder) v.getTag();
+//            int pos = (Integer) holder.gridContainer.getTag();
+//            ContactInfo contactInfo = new ContactInfo();
+//            contactInfo = contactInfo.getContactInfoFromCursor(pos,context,cursor) ;
+//            gridClickCallback.detailGridItemClick(contactInfo);
+//        }
+//    }
 
 
     public static class ViewHolder{

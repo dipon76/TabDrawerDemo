@@ -122,7 +122,7 @@ public class CustomBottomSheetDialogFragment extends BottomSheetDialogFragment i
             startActivity(intent);
 
         } else if (v.getId() == R.id.details_container) {
-            Intent intent = new Intent(Intent.ACTION_DIAL);
+            Intent intent = new Intent(Intent.ACTION_CALL);
             intent.setData(Uri.parse("tel:"+ contactInfo.getContactNumber()));
             intent.putExtra("finishActivityOnSaveCompleted", true);
             startActivity(intent);

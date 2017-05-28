@@ -1,9 +1,7 @@
 package com.example.dipon.tabviewdemo.main.adapters;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
-import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -46,8 +44,8 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
     }
 
     public interface ClickCallback {
-        void onItemClick(int p);
-        void onItemLongClick (int p);
+        void onContactItemClick(int p);
+        void onContactItemLongClick(int p);
     }
 
     public void swapCursor(Cursor cursor) {
@@ -114,12 +112,12 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
 
         @Override
         public void onClick(View v) {
-                clickCallback.onItemClick(getAdapterPosition());
+                clickCallback.onContactItemClick(getAdapterPosition());
         }
 
         @Override
         public boolean onLongClick(View v) {
-            clickCallback.onItemLongClick(getAdapterPosition());
+            clickCallback.onContactItemLongClick(getAdapterPosition());
             return false;
         }
     }

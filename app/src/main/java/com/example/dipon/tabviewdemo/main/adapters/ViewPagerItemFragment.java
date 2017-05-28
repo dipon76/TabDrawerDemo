@@ -33,7 +33,14 @@ import com.example.dipon.tabviewdemo.main.data.ContactInfo;
  * Created by Dipon on 4/5/2017.
  */
 
-public class ViewPagerItemFragment extends Fragment implements ContactAdapter.ClickCallback , LoaderManager.LoaderCallbacks <Cursor>, CallLogAdapter.ClickCallBack {
+/**
+ *
+ * @modified by Dipon
+ * on 5/28/17
+ */
+
+
+public class ViewPagerItemFragment extends Fragment implements ContactAdapter.ClickCallback , LoaderManager.LoaderCallbacks <Cursor>, CallLogAdapter.ClickCallBack, GridAdapter.GridClickCallback {
 
     private static final String PAGE_TITLE = "PAGE_TITLE";
 
@@ -54,10 +61,8 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
 
     private GridView gridView;
     private GridAdapter gridAdapter;
-    private View gridContainer;
 
     private Cursor contactCursor;
-    Cursor callLogCursor;
 
     public ViewPagerItemFragment(){}
 
@@ -91,7 +96,7 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
         } else if (id == FAVOURITE_LOADER_ID) {
             String selection = ContactsContract.Contacts.STARRED + "='1'";
             cursorLoader = new CursorLoader(getContext(), ContactsContract.Contacts.CONTENT_URI, null, selection, null, null);
-            Log.d(TAG, "onCreateLoader: contactloader");
+            Log.d(TAG, "onCreateLoader: Favorite_grid loader");
         }
 
         return cursorLoader;
@@ -147,36 +152,6 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
     }
 
 
-    private class ContactLoader extends AsyncTask<Void,Void,Cursor> {
-
-        private Cursor getAllContacts() throws RemoteException {
-            ContentResolver contentResolver = getContext().getContentResolver();
-            Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
-            return cursor;
-        }
-        @Override
-        protected void onPostExecute (Cursor aCursor) {
-            super.onPostExecute (aCursor);
-            contactAdapter.swapCursor(aCursor);
-
-        }
-
-        @Override
-        protected Cursor doInBackground (Void... params) {
-            try {
-                Cursor dataCursor = getAllContacts();
-                if (dataCursor == null ) {
-                    Log.e(TAG, "doInBackground: cursor null" );
-                }
-                return dataCursor;
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-    }
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -211,13 +186,12 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
     private void initializeContactViewAndLoader(View v) {
         recyclerView = (RecyclerView) v.findViewById(R.id.contact_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        contactAdapter = new ContactAdapter(getContext(),this);
-        contactAdapter.setClickCallback(this);
         recyclerView.addItemDecoration(new VerticalSpaceItemDecoration(VERTICAL_ITEM_SPACE));
         recyclerView.setItemAnimator(new DefaultItemAnimator () );
+
+        contactAdapter = new ContactAdapter(getContext(),this);
+        contactAdapter.setClickCallback(this);
         recyclerView.setAdapter (contactAdapter);
-//        ContactLoader contactLoader = new ContactLoader ();
-//        contactLoader.execute();
 
         loaderManager = getLoaderManager();
         loaderManager.initLoader(CONTACT_LOADER_ID, null, this);
@@ -225,13 +199,14 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
 
     private void initializeLogViewAndLoader(View v) {
         recyclerViewLog = (RecyclerView) v.findViewById(R.id.callLog_list);
-        recyclerViewLog.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerViewLog.addItemDecoration(new VerticalSpaceItemDecoration(VERTICAL_ITEM_SPACE));
-        callLogAdapter = new CallLogAdapter(getContext(),this);
+        recyclerViewLog.setLayoutManager (new LinearLayoutManager(getContext()));
+        recyclerViewLog.addItemDecoration (new VerticalSpaceItemDecoration(VERTICAL_ITEM_SPACE));
+        recyclerViewLog.setItemAnimator (new DefaultItemAnimator());
 
-        callLogAdapter.setClickCallBack(this);
-        recyclerViewLog.setAdapter(callLogAdapter);
-        recyclerViewLog.setItemAnimator(new DefaultItemAnimator());
+        callLogAdapter = new CallLogAdapter (getContext(), this);
+        callLogAdapter.setClickCallBack (this);
+        recyclerViewLog.setAdapter (callLogAdapter);
+
 
         loaderManager = getLoaderManager();
         loaderManager.initLoader(CALL_LOG_LOADER_ID,null,this);
@@ -240,6 +215,7 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
     private void initializeGridView (View v) {
         gridView = (GridView) v.findViewById(R.id.gridView);
         gridAdapter = new GridAdapter(getContext(), R.layout.grid_item_list, this);
+        gridAdapter.setGridClickCallback(this);
         gridView.setAdapter(gridAdapter);
 
         loaderManager = getLoaderManager();
@@ -257,11 +233,6 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
     }
 
 
-    /**
-     *
-     * @modified by Dipon
-     * on 17/5/17
-     */
 
     @Override
     public void onCallClick(int p) {
@@ -269,16 +240,48 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
         Log.e(TAG, "onCallClick: call click");
         if (callInfo != null && callInfo.getCallerNumber() != null) {
             Intent intent = new Intent(Intent.ACTION_CALL);
-            intent.setData(Uri.parse("tel:"+ callInfo.getCallerNumber()));
+            intent.setData(Uri.parse("tel:" + callInfo.getCallerNumber()));
             intent.putExtra("finishActivityOnSaveCompleted", true);
             startActivity(intent);
         }
     }
 
     @Override
-    public void onItemClick(int p) {
+    public void onContactItemClick(int p) {
         ContactInfo contactInfo = new ContactInfo();
-        contactInfo = contactInfo.getContactInfoFromCursor(p,getContext(),contactCursor);
+        contactInfo = contactInfo.getContactInfoFromCursor(p, getContext(), contactCursor);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("contactInfo", contactInfo);
+        BottomSheetDialogFragment bottomSheetDialogFragment = new CustomBottomSheetDialogFragment();
+        bottomSheetDialogFragment.setArguments(bundle);
+        bottomSheetDialogFragment.show(getActivity().getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
+    }
+
+    @Override
+    public void onContactItemLongClick(int p) {
+        ContactInfo contactInfo = new ContactInfo();
+        contactInfo = contactInfo.getContactInfoFromCursor(p, getContext(), contactCursor);
+        if (contactInfo != null && contactInfo.getContactNumber() != null) {
+            Intent intent = new Intent(Intent.ACTION_DIAL);
+            intent.setData(Uri.parse("tel:" + contactInfo.getContactNumber()));
+            intent.putExtra("finishActivityOnSaveCompleted", true);
+            startActivity(intent);
+        }
+
+    }
+
+    @Override
+    public void gridItemClick(ContactInfo contactInfo) {
+        if (contactInfo != null && contactInfo.getContactNumber() != null) {
+            Intent intent = new Intent(Intent.ACTION_CALL);
+            intent.setData(Uri.parse("tel:"+ contactInfo.getContactNumber()));
+            intent.putExtra("finishActivityOnSaveCompleted", true);
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public void detailGridItemClick(ContactInfo contactInfo) {
         Bundle bundle = new Bundle();
         bundle.putSerializable("contactInfo",contactInfo);
         BottomSheetDialogFragment bottomSheetDialogFragment = new CustomBottomSheetDialogFragment();
@@ -286,16 +289,4 @@ public class ViewPagerItemFragment extends Fragment implements ContactAdapter.Cl
         bottomSheetDialogFragment.show(getActivity().getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
     }
 
-    @Override
-    public void onItemLongClick(int p) {
-        ContactInfo contactInfo = new ContactInfo();
-        contactInfo = contactInfo.getContactInfoFromCursor(p,getContext(),contactCursor);
-        if (contactInfo != null && contactInfo.getContactNumber() != null) {
-            Intent intent = new Intent(Intent.ACTION_DIAL);
-            intent.setData(Uri.parse("tel:"+ contactInfo.getContactNumber()));
-            intent.putExtra("finishActivityOnSaveCompleted", true);
-            startActivity(intent);
-        }
-
-    }
 }
